@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <!-- Import style -->
+        <!-- <link rel="stylesheet" href="//unpkg.com/element-plus/dist/index.css" /> -->
+        <link rel="stylesheet" href="/static/css/element-plus.css"></link>
+        <!-- Import Vue 3 -->
+        <!-- <script src="//unpkg.com/vue@3"></script> -->
+        <script src="/static/js/vue.global.js"></script>
+        <!-- <script src="https://unpkg.com/vue-router@4"></script> -->
+        <script src="/static/js/vue-router.global.js"></script>
+        <!-- <script src="https://unpkg.com/http-vue-loader"></script> -->
+        <script src="/static/js/httpVueLoader.js"></script>
+        <!-- Import component library -->
+        <!-- <script src="//unpkg.com/element-plus"></script> -->
+        <script src="/static/js/element-plus.js"></script>
+    </head>
+
+    <body>
+        <div id="app">
+            <!-- Vue Component Container -->
+            <!-- <my-component></my-component> -->
+            <el-menu
+                :default-active="this.$route.path"
+                class="el-menu-demo"
+                mode="horizontal"
+                @select="handleSelect"
+                router
+                unique-opened>
+                <!-- Logo -->
+                <el-menu-item index="" class="logo-item">
+                    <el-image :src="logoPath" alt="Logo" class="logo-image" ></el-image>
+                </el-menu-item>
+                <el-menu-item index="/">Home</el-menu-item>
+                <el-sub-menu index="Demo">
+                    <template #title>{[activeIndex]}</template>
+                    <el-menu-item index="/my-page">My Page</el-menu-item>
+                </el-sub-menu>
+                <el-menu-item index="/about">About</el-menu-item>
+            </el-menu>
+
+            <router-view></router-view>
+        </div>
+    </body>
+
+    <script type="text/javascript">
+        // load components
+        const Home = httpVueLoader("{{ url_for('static', filename='components/Home.vue') }}");
+        const About = httpVueLoader("{{ url_for('static', filename='components/About.vue') }}");
+        const MyPage = httpVueLoader("{{ url_for('static', filename='components/MyPage.vue') }}");
+        //const About = httpVueLoader("/static/components/About.vue");
+    
+        // define routes
+        const routes = [
+            {
+                path: '/',
+                name: 'Home',
+                component: Home,
+                meta: {
+                    title: 'Home'
+                }
+            },
+            {
+                path: '/my-page',
+                name: 'MyPage',
+                component: MyPage,
+                meta: {
+                    title: 'MyPage'
+                }
+            },
+            {
+                path: '/about',
+                name: 'About',
+                component: About,
+                meta: {
+                    title: 'About'
+                }
+            }
+        ];
+
+        const router = VueRouter.createRouter({
+            history: VueRouter.createWebHashHistory(),
+            routes
+        });
+
+        router.beforeEach((to, from, next) => {
+            document.title = to.meta.title || 'Web Fusion';
+            next()
+        })
+
+        const App = {
+            // el: '#app',
+            // router,
+            delimiters:['{[',']}'],
+            created() {
+                document.title = 'Home';
+            },
+            components: {
+                'my-component': httpVueLoader("{{ url_for('static', filename='my-component.vue') }}")
+            },
+            data: function() {
+                return {
+                    activeIndex: 'Demo',
+                    logoPath: "{{ url_for('static', filename='logo/logo.png') }}",
+                }
+            },
+            methods: {
+                handleSelect(key, keyPath) {
+                console.log(key, keyPath);
+                }
+            }
+        };
+
+        const app = Vue.createApp(App);
+        app.use(ElementPlus);
+        app.use(router);
+        app.mount('#app');
+
+    </script>
+
+    <style scoped>
+        .logo-item {
+            margin-right: 0;
+        }
+
+        .logo-image {
+            width: auto;
+            height: auto;
+            vertical-align: middle;
+        }
+    </style>
+
+</html>
+
+
+
+
+
+
+
+
+
